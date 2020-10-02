@@ -1,4 +1,10 @@
-from flask import Flask , render_template
+from flask import Flask , render_template , g
+import sqlite3
+
+PATH = "db/jobs.sqlite"
+
+
+
 app = Flask(__name__)# If you are using a single module , you should use __name__ because depending on if it’s started as application or imported as module the name will be different ('__main__' versus the actual import name).
 #This is needed so that Flask knows where to look for templates, static files, and so on.
 #If you are using a single module, __name__ is always the correct value. If you however are using a package, it’s usually recommended to hardcode the name of your package
@@ -7,6 +13,35 @@ app = Flask(__name__)# If you are using a single module , you should use __name_
 
 #app = Flask('yourapplication')
 #app = Flask(__name__.split('.')[0])
+
+
+def open_connection():
+    connection = getattr(g, '_connection',None)
+    if connection is None:
+        connection = g._connection = sqlite3.connect(PATH)
+
+    connection.row_factory = sqlite3.Row
+    return connection
+
+def execute_sql(sql , values=() , commit=False , single = False):
+    connection = open_connection()
+    cursor = connection.execute(sql, values)
+    if commit is True :
+        results = connection.commit()
+    else:
+        results = cursor.fetchone() if single else cursor.fetchall()
+
+    cursor.close()
+    return results
+
+@app.teardown_appcontext
+def close_connection(exception):
+    connection = getattr(g , '_connection' , None)
+    if connection is not None:
+        connection.close()
+
+
+
 
 @app.route('/')# the decorator is telling our @app that whenever a user visits our app domain (myapp.com) at the given .route(), execute the jobs() function.
 #use the route() decorator to tell Flask what URL should trigger our function.use the route() decorator to tell Flask what URL should trigger our function. A decorator that is used to register a view function for a given URL rule
