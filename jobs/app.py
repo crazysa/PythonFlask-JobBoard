@@ -47,4 +47,7 @@ def close_connection(exception):
 #use the route() decorator to tell Flask what URL should trigger our function.use the route() decorator to tell Flask what URL should trigger our function. A decorator that is used to register a view function for a given URL rule
 @app.route('/jobs')
 def jobs():
-     return render_template('index.html') # this is to get the html code inside the python. it looks for a folder named template and then searches for the specified name in it. We can also pass parameters if required in the html
+     jobs = execute_sql('SELECT job.id, job.title, job.description,
+     job.salary, employer.id as employer_id, employer.name as employer_name
+     FROM job JOIN employer ON employer.id = job.employer_id')
+     return render_template('index.html', jobs=jobs) # this is to get the html code inside the python. it looks for a folder named template and then searches for the specified name in it. We can also pass parameters if required in the html
