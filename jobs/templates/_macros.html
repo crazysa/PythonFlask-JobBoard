@@ -11,7 +11,7 @@
   <div class="card-content">
     <div class="content">
       <p>
-        <a href="">
+        <a href="{{url_for('employer' , employer_id=job['enployer_id'])}}">
           {{ job['employer_name'] }}<br>
           {{ job['salary'] }} <br>
           {{ job['description'] }}
